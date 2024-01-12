@@ -12,16 +12,12 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-
-
         // injects a stylesheet into the document <head>
         // id=leptos means cargo-leptos will hot-reload this stylesheet
-        <Stylesheet id="leptos" href="/pkg/try-leptos-ssr.css"/>
+        <Stylesheet id="leptos" href="/pkg/entropy-testnet-web-ui.css"/>
 
-        // sets the document title
-        <Title text="Welcome to Leptos"/>
+        <Title text="Entropy Testnet Web UI"/>
 
-        // content for this welcome page
         <Router fallback=|| {
             let mut outside_errors = Errors::default();
             outside_errors.insert_with_default_key(AppError::NotFound);
@@ -43,7 +39,8 @@ pub fn App() -> impl IntoView {
 fn HomePage() -> impl IntoView {
     let accounts = create_resource(|| (), move |_| get_registered_accounts());
     view! {
-        <h1>"Registered Entropy Accounts"</h1>
+        <h1>"Entropy Testnet Web UI"</h1>
+        <h2>"Registered Entropy Accounts"</h2>
             <Transition fallback=move || view! {<p>"Loading..."</p> }>
         {move || {
                      let existing_accounts = {
