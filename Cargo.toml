@@ -28,8 +28,8 @@ thiserror = "1.0.38"
 tracing = { version = "0.1.37", optional = true }
 http = "0.2.8"
 serde = { version = "1.0", features = ["derive"] }
-entropy-testing-utils = { git = "ssh://git@github.com/entropyxyz/entropy-core.git", optional = true }
-entropy-shared = { git = "ssh://git@github.com/entropyxyz/entropy-core.git", default-features = false }
+entropy-testing-utils = { git = "ssh://git@github.com/entropyxyz/entropy-core.git", branch="peg/update-test-client-programs", optional = true }
+entropy-shared = { git = "ssh://git@github.com/entropyxyz/entropy-core.git", branch="peg/update-test-client-programs", default-features = false }
 subxt = { package = "subxt", git = "https://github.com/paritytech/subxt.git", tag = "v0.32.1", default-features = false }
 hex = "0.4.3"
 

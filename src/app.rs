@@ -1,5 +1,6 @@
 use crate::{
     error_template::{AppError, ErrorTemplate},
+    program::{get_stored_programs, Program},
     registered_account::{get_registered_accounts, RegisteredAccount},
 };
 use leptos::*;
@@ -38,21 +39,22 @@ pub fn App() -> impl IntoView {
 #[component]
 fn HomePage() -> impl IntoView {
     let accounts = create_resource(|| (), move |_| get_registered_accounts());
+    let programs = create_resource(|| (), move |_| get_stored_programs());
     view! {
         <h1>"Entropy Testnet Web UI"</h1>
-        <h2>"Registered Entropy Accounts"</h2>
-            <Transition fallback=move || view! {<p>"Loading..."</p> }>
+        <h2>"Registered entropy accounts"</h2>
+            <Transition fallback=move || view! {<p>"loading..."</p> }>
         {move || {
                      let existing_accounts = {
                          move || {
                              accounts.get()
                                     .map(move |accounts| match accounts {
                                         Err(e) => {
-                                            view! { <pre class="error">"Server Error: " {e.to_string()}</pre>}.into_view()
+                                            view! { <pre class="error">"server error: " {e.to_string()}</pre>}.into_view()
                                         }
                                         Ok(accounts) => {
                                             if accounts.is_empty() {
-                                                view! { <p>"No registered accounts."</p> }.into_view()
+                                                view! { <p>"no registered accounts."</p> }.into_view()
                                             } else {
                                                 accounts
                                                     .into_iter()
@@ -71,13 +73,56 @@ fn HomePage() -> impl IntoView {
                         view! {
                             <table>
                                 <tr>
-                                  <th>"Account Id"</th>
+                                  <th>"Account ID"</th>
                                   <th>"Access Mode"</th>
                                   <th>"Program Modification Account"</th>
                                   <th>"Verifying Key"</th>
                                   <th>"Programs"</th>
                                 </tr>
                                 {existing_accounts}
+                            </table>
+                        }
+                    }
+                }
+            </Transition>
+
+        <h2>"Programs"</h2>
+            <Transition fallback=move || view! {<p>"loading..."</p> }>
+        {move || {
+                     let stored_programs = {
+                         move || {
+                             programs.get()
+                                    .map(move |programs| match programs {
+                                        Err(e) => {
+                                            view! { <pre class="error">"server error: " {e.to_string()}</pre>}.into_view()
+                                        }
+                                        Ok(programs) => {
+                                            if programs.is_empty() {
+                                                view! { <p>"No stored programs."</p> }.into_view()
+                                            } else {
+                                                programs
+                                                    .into_iter()
+                                                    .map(move |program| {
+                                                        view! { <Program program />
+                                                        }
+                                                    })
+                                                    .collect_view()
+                                            }
+                                        }
+                                    })
+                                    .unwrap_or_default()
+                            }
+                        };
+
+                        view! {
+                            <table>
+                                <tr>
+                                  <th>"Hash"</th>
+                                  <th>"Stored by Account ID"</th>
+                                  <th>"Times used"</th>
+                                  <th>"Size"</th>
+                                </tr>
+                                {stored_programs}
                             </table>
                         }
                     }
