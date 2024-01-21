@@ -1866,7 +1866,7 @@ dependencies = [
 [[package]]
 name = "entropy-kvdb"
 version = "0.1.0"
-source = "git+ssh://git@github.com/entropyxyz/entropy-core.git?branch=peg/update-test-client-programs#74d3c64187d08ccdb3d37b24fcad0332cac1a2d8"
+source = "git+ssh://git@github.com/entropyxyz/entropy-core.git?branch=peg/update-test-client-programs#b7d501453f6b660627811d07390f0eb187bc34be"
 dependencies = [
  "bincode",
  "chacha20poly1305 0.9.1",
@@ -1909,7 +1909,7 @@ dependencies = [
 [[package]]
 name = "entropy-protocol"
 version = "0.1.0"
-source = "git+ssh://git@github.com/entropyxyz/entropy-core.git?branch=peg/update-test-client-programs#74d3c64187d08ccdb3d37b24fcad0332cac1a2d8"
+source = "git+ssh://git@github.com/entropyxyz/entropy-core.git?branch=peg/update-test-client-programs#b7d501453f6b660627811d07390f0eb187bc34be"
 dependencies = [
  "async-trait",
  "axum",
@@ -1939,7 +1939,7 @@ dependencies = [
 [[package]]
 name = "entropy-shared"
 version = "0.1.0"
-source = "git+ssh://git@github.com/entropyxyz/entropy-core.git?branch=peg/update-test-client-programs#74d3c64187d08ccdb3d37b24fcad0332cac1a2d8"
+source = "git+ssh://git@github.com/entropyxyz/entropy-core.git?branch=peg/update-test-client-programs#b7d501453f6b660627811d07390f0eb187bc34be"
 dependencies = [
  "frame-support",
  "node-primitives",
@@ -1953,7 +1953,7 @@ dependencies = [
 [[package]]
 name = "entropy-testing-utils"
 version = "0.0.9"
-source = "git+ssh://git@github.com/entropyxyz/entropy-core.git?branch=peg/update-test-client-programs#74d3c64187d08ccdb3d37b24fcad0332cac1a2d8"
+source = "git+ssh://git@github.com/entropyxyz/entropy-core.git?branch=peg/update-test-client-programs#b7d501453f6b660627811d07390f0eb187bc34be"
 dependencies = [
  "anyhow",
  "axum",
@@ -2020,7 +2020,7 @@ dependencies = [
 [[package]]
 name = "entropy-tss"
 version = "0.1.0"
-source = "git+ssh://git@github.com/entropyxyz/entropy-core.git?branch=peg/update-test-client-programs#74d3c64187d08ccdb3d37b24fcad0332cac1a2d8"
+source = "git+ssh://git@github.com/entropyxyz/entropy-core.git?branch=peg/update-test-client-programs#b7d501453f6b660627811d07390f0eb187bc34be"
 dependencies = [
  "anyhow",
  "async-stream",
