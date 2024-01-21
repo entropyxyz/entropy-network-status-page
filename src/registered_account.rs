@@ -14,7 +14,7 @@ pub struct RegisteredAccount {
 #[component]
 pub fn RegisteredAccount(account: RegisteredAccount) -> impl IntoView {
     view! {
-        <tr>
+        <tr class="hover:bg-gray-200">
             <td>{account.account_id.to_string()}</td>
             <td>{account.key_visibility}</td>
             <td>{account.program_modification_account}</td>
@@ -42,7 +42,7 @@ cfg_if::cfg_if! {
                         KeyVisibility::Private(_) => "Private",
                     }.to_string(),
                     verifying_key: hex::encode(registered_info.verifying_key.0),
-                    program_pointers: registered_info.program_pointers.0.into_iter().map(|pointer| format!("{}", pointer)).collect(),
+                    program_pointers: registered_info.programs_data.0.into_iter().map(|program_instance| format!("{}", program_instance.program_pointer)).collect(),
                     program_modification_account: registered_info.program_modification_account.to_string(),
                 }
             }
@@ -52,13 +52,10 @@ cfg_if::cfg_if! {
 
 #[server(GetRegisteredAccounts, "/api")]
 pub async fn get_registered_accounts() -> Result<Vec<RegisteredAccount>, ServerFnError> {
+    use crate::get_api_rpc;
     use entropy_testing_utils::test_client::get_accounts;
 
-    let endpoint_addr =
-        std::env::var("ENTROPY_TESTNET").unwrap_or("ws://localhost:9944".to_string());
-
-    let api = get_api(&endpoint_addr).await?;
-    let rpc = get_rpc(&endpoint_addr).await?;
+    let (api, rpc) = get_api_rpc().await;
 
     let accounts = get_accounts(&api, &rpc)
         .await
