@@ -32,7 +32,6 @@ cfg_if::cfg_if! {
 
         impl Program {
             fn new(hash: H256, program_info: ProgramInfo<AccountId32>) -> Program {
-                log::info!("Ref counter {:?}", program_info.ref_counter);
                 Program {
                     hash: hash.to_string(),
                     stored_by: program_info.program_modification_account.to_string(),
