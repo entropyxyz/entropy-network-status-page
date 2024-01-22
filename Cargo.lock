@@ -1993,6 +1993,7 @@ dependencies = [
 name = "entropy-testnet-web-ui"
 version = "0.0.1"
 dependencies = [
+ "anyhow",
  "axum",
  "cfg-if",
  "console_error_panic_hook",
@@ -2006,6 +2007,7 @@ dependencies = [
  "leptos_meta",
  "leptos_router",
  "log",
+ "parity-scale-codec",
  "pretty-bytes-rust",
  "serde",
  "simple_logger",

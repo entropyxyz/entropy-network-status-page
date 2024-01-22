@@ -35,6 +35,8 @@ hex = "0.4.3"
 web-sys = { version = "0.3.66", features = ["Navigator", "Clipboard"]}
 wasm-bindgen-futures = "0.4.39"
 pretty-bytes-rust = "0.1.0"
+anyhow = "1.0.75"
+parity-scale-codec="3.0.0"
 
 [features]
 hydrate = [

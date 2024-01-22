@@ -3,6 +3,7 @@ pub mod error_template;
 pub mod fileserv;
 pub mod program;
 pub mod registered_account;
+pub mod validator;
 
 use cfg_if::cfg_if;
 use pretty_bytes_rust::pretty_bytes;

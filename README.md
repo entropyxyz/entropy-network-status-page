@@ -19,7 +19,7 @@ cargo leptos watch
 Compiling for release:
 
 ```bash
-cargo leptos build --release
+RUSTFLAGS=--cfg=web_sys_unstable_apis cargo leptos build --release
 ```
 will generate server binary in target/server/release and site package in target/site
 

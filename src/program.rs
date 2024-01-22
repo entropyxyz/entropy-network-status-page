@@ -1,3 +1,4 @@
+use crate::display_bytes;
 use leptos::*;
 use serde::{Deserialize, Serialize};
 
@@ -17,7 +18,7 @@ pub fn Program(program: Program) -> impl IntoView {
             <td>{program.hash}</td>
             <td>{program.stored_by}</td>
             <td>{program.ref_counter}</td>
-            <td>{program.size}</td>
+            <td>{display_bytes(program.size as u64)}</td>
             <td>{program.configurable}</td>
         </tr>
     }
