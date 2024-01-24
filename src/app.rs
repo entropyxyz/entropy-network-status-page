@@ -2,6 +2,8 @@ use crate::{
     error_template::{AppError, ErrorTemplate},
     program::{get_stored_programs, Program},
     registered_account::{get_registered_accounts, RegisteredAccount},
+    validator::{get_validators, Validator},
+    DetailsTable,
 };
 use leptos::*;
 use leptos_meta::*;
@@ -40,6 +42,7 @@ pub fn App() -> impl IntoView {
 fn HomePage() -> impl IntoView {
     let accounts = create_resource(|| (), move |_| get_registered_accounts());
     let programs = create_resource(|| (), move |_| get_stored_programs());
+    let validators = create_resource(|| (), move |_| get_validators());
     view! {
             <div class="container mx-auto">
             <h1 class="text-2xl">"Entropy Testnet Web UI"</h1>
@@ -71,17 +74,14 @@ fn HomePage() -> impl IntoView {
                             };
 
                             view! {
-                                <h2 class="text-xl my-2">"Registered entropy accounts"</h2>
-                                <table class="border border-slate-500 table-auto">
-                                    <tr class="border border-slate-500">
-                                      <th>"Account ID"</th>
-                                      <th>"Access Mode"</th>
-                                      <th>"Program Modification Account"</th>
-                                      <th>"Verifying Key"</th>
-                                      <th>"Programs"</th>
-                                    </tr>
-                                    {existing_accounts}
-                                </table>
+
+                                <DetailsTable title="Registered Entropy Accounts" headings=vec![
+                                    "Account ID",
+                                    "Access Mode", "Program Modification Account", "Verifying Key",
+                                    "Programs",
+                                ]>
+                                        {existing_accounts}
+                                </DetailsTable>
                             }
                         }
                     }
@@ -115,21 +115,45 @@ fn HomePage() -> impl IntoView {
                             };
 
                             view! {
-                                <h2 class="text-xl my-2">"Programs"</h2>
-                                <table class="border border-slate-500 table-auto">
-                                    <thead>
-                                        <tr>
-                                          <th>"Hash"</th>
-                                          <th>"Stored by Account ID"</th>
-                                          <th>"Times used"</th>
-                                          <th>"Size"</th>
-                                          <th>"Configurable?"</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                                <DetailsTable title="Programs" headings=vec!["Hash", "Stored by Account ID", "Times Used", "Size", "Configurable?"]>
                                         {stored_programs}
-                                    </tbody>
-                                </table>
+                                </DetailsTable>
+                            }
+                        }
+                    }
+                </Transition>
+
+                <Transition fallback=move || view! {<p>"loading..."</p> }>
+            {move || {
+                         let current_validators = {
+                             move || {
+                                 validators.get()
+                                        .map(move |validators| match validators {
+                                            Err(e) => {
+                                                view! { <pre class="error">"server error: " {e.to_string()}</pre>}.into_view()
+                                            }
+                                            Ok(validators) => {
+                                                if validators.is_empty() {
+                                                    view! { <p>"No validators."</p> }.into_view()
+                                                } else {
+                                                    validators
+                                                        .into_iter()
+                                                        .map(move |validator| {
+                                                            view! { <Validator validator />
+                                                            }
+                                                        })
+                                                        .collect_view()
+                                                }
+                                            }
+                                        })
+                                        .unwrap_or_default()
+                                }
+                            };
+
+                            view! {
+                                <DetailsTable title="Validators" headings=vec!["TSS Account ID", "X25519 Public Key", "Socket Address"]>
+                                        {current_validators}
+                                </DetailsTable>
                             }
                         }
                     }

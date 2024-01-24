@@ -6,12 +6,12 @@ pub mod registered_account;
 pub mod validator;
 
 use cfg_if::cfg_if;
+use leptos::*;
 use pretty_bytes_rust::pretty_bytes;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 cfg_if! { if #[cfg(feature = "hydrate")] {
-    use leptos::*;
     use wasm_bindgen::prelude::wasm_bindgen;
     use crate::app::*;
 
@@ -85,5 +85,61 @@ pub fn display_bytes(bytes: u64) -> String {
                 remove_zero_decimal: Some(true),
             }),
         ),
+    }
+}
+
+#[component]
+pub fn DetailsTable(
+    title: &'static str,
+    headings: Vec<&'static str>,
+    children: Children,
+) -> impl IntoView {
+    view! {
+        <h2 class="text-xl my-2">{title}</h2>
+            <table class="border border-slate-500 table-auto">
+                <thead>
+                    <tr>
+                        {headings.into_iter()
+                            .map(|heading| view! { <th>{heading}</th>})
+                            .collect::<Vec<_>>()
+                        }
+                  </tr>
+                    </thead>
+                  <tbody>
+                  {children()}
+                  </tbody>
+            </table>
+    }
+}
+
+#[component]
+pub fn DisplayValue(value: String, long_value: String) -> impl IntoView {
+    let (long_value, _set_long_value) = create_signal(long_value);
+    let copy = move |_| {
+        cfg_if! { if #[cfg(feature = "hydrate")] {
+            log::info!("Copying...");
+            use wasm_bindgen_futures::spawn_local;
+            #[cfg(web_sys_unstable_apis)]
+            spawn_local(async move {
+
+            log::info!("about to copy...");
+                let window = web_sys::window().unwrap();
+                match window.navigator().clipboard() {
+                    Some(clipboard) => {
+                        let promise = clipboard.write_text(&long_value.get_untracked());
+                        let _result = wasm_bindgen_futures::JsFuture::from(promise)
+                            .await
+                            .unwrap();
+                        log::info!("Copied to clipboard");
+                    }
+                    None => {
+                        log::warn!("Failed to copy to clipboard");
+                    }
+                }
+            });
+        }}
+    };
+    view! {
+        <td class="hover:bg-gray-200" title={move || format!("Click to copy {}", long_value.get())} on:click=copy><code>{value}</code></td>
     }
 }

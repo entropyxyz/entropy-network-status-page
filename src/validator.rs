@@ -1,4 +1,4 @@
-use crate::HexVec;
+use crate::{DisplayValue, HexVec};
 use leptos::*;
 use serde::{Deserialize, Serialize};
 use subxt::utils::AccountId32;
@@ -8,6 +8,17 @@ pub struct Validator {
     tss_account: AccountId32,
     x25519_public_key: HexVec,
     endpoint: String,
+}
+
+#[component]
+pub fn Validator(validator: Validator) -> impl IntoView {
+    view! {
+        <tr class="hover:bg-gray-200">
+            <td>{validator.tss_account.to_string()}</td>
+            <DisplayValue value={validator.x25519_public_key.to_string()} long_value={format!("{:?}", validator.x25519_public_key)} />
+            <td>{validator.endpoint}</td>
+        </tr>
+    }
 }
 
 cfg_if::cfg_if! {
