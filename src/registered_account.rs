@@ -1,5 +1,4 @@
 use crate::{DisplayValue, HexVec};
-use cfg_if::cfg_if;
 use leptos::*;
 use serde::{Deserialize, Serialize};
 use subxt::utils::AccountId32;
@@ -16,12 +15,12 @@ pub struct RegisteredAccount {
 #[component]
 pub fn RegisteredAccount(account: RegisteredAccount) -> impl IntoView {
     view! {
-        <tr>
-            <td>{account.account_id.to_string()}</td>
-            <td>{account.key_visibility}</td>
-            <td>{account.program_modification_account}</td>
-            <DisplayValue value={account.verifying_key.to_string()} long_value={format!("{:?}", account.verifying_key)} />
-            <td>{account.program_pointers}</td>
+        <tr class="hover:bg-gray-200">
+            <DisplayValue value={account.account_id.to_string()} long_value={None} />
+            <td class="px-4">{account.key_visibility}</td>
+            <DisplayValue value={account.program_modification_account} long_value={None} />
+            <DisplayValue value={account.verifying_key.to_string()} long_value={Some(format!("{:?}", account.verifying_key))} />
+            <td class="px-4">{account.program_pointers}</td>
         </tr>
     }
 }

@@ -32,6 +32,7 @@ cfg_if! { if #[cfg(feature = "ssr")] {
     use entropy_testing_utils::chain_api::EntropyConfig;
     use subxt::{backend::legacy::LegacyRpcMethods, OnlineClient};
 
+    /// Backend function for getting the chain API
     pub async fn get_api_rpc() -> (
         OnlineClient<EntropyConfig>,
         LegacyRpcMethods<EntropyConfig>,
@@ -74,6 +75,7 @@ impl fmt::Debug for HexVec {
     }
 }
 
+/// For diplaying sizes nicely
 pub fn display_bytes(bytes: u64) -> String {
     match bytes {
         0 => "0".to_string(),
@@ -88,6 +90,7 @@ pub fn display_bytes(bytes: u64) -> String {
     }
 }
 
+/// A table with given headings and a title
 #[component]
 pub fn DetailsTable(
     title: &'static str,
@@ -95,7 +98,7 @@ pub fn DetailsTable(
     children: Children,
 ) -> impl IntoView {
     view! {
-        <h2 class="text-xl my-2">{title}</h2>
+        <h2 class="text-xl my-4">{title}</h2>
             <table class="border border-slate-500 table-auto">
                 <thead>
                     <tr>
@@ -112,8 +115,10 @@ pub fn DetailsTable(
     }
 }
 
+/// Copyable table data
 #[component]
-pub fn DisplayValue(value: String, long_value: String) -> impl IntoView {
+pub fn DisplayValue(value: String, long_value: Option<String>) -> impl IntoView {
+    let long_value = long_value.unwrap_or(value.clone());
     let (long_value, _set_long_value) = create_signal(long_value);
     let copy = move |_| {
         cfg_if! { if #[cfg(feature = "hydrate")] {
@@ -121,8 +126,6 @@ pub fn DisplayValue(value: String, long_value: String) -> impl IntoView {
             use wasm_bindgen_futures::spawn_local;
             #[cfg(web_sys_unstable_apis)]
             spawn_local(async move {
-
-            log::info!("about to copy...");
                 let window = web_sys::window().unwrap();
                 match window.navigator().clipboard() {
                     Some(clipboard) => {
@@ -140,6 +143,6 @@ pub fn DisplayValue(value: String, long_value: String) -> impl IntoView {
         }}
     };
     view! {
-        <td class="hover:bg-gray-200" title={move || format!("Click to copy {}", long_value.get())} on:click=copy><code>{value}</code></td>
+        <td class="hover:font-extrabold px-4" title={move || format!("Click to copy {}", long_value.get())} on:click=copy><code>{value}</code></td>
     }
 }

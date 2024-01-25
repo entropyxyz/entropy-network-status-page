@@ -19,7 +19,7 @@ pub fn App() -> impl IntoView {
         // id=leptos means cargo-leptos will hot-reload this stylesheet
         <Stylesheet id="leptos" href="/pkg/entropy-testnet-web-ui.css"/>
 
-        <Title text="Entropy Testnet Web UI"/>
+        <Title text="Entropy Testnet Status Page"/>
 
         <Router fallback=|| {
             let mut outside_errors = Errors::default();
@@ -45,7 +45,7 @@ fn HomePage() -> impl IntoView {
     let validators = create_resource(|| (), move |_| get_validators());
     view! {
             <div class="container mx-auto">
-            <h1 class="text-2xl">"Entropy Testnet Web UI"</h1>
+            <h1 class="text-2xl my-4">"Entropy Testnet Status Page"</h1>
                 <Transition fallback=move || view! {<p>"loading..."</p> }>
             {move || {
                          let existing_accounts = {
