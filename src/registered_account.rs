@@ -55,11 +55,11 @@ pub async fn get_registered_accounts() -> Result<Vec<RegisteredAccount>, ServerF
     use crate::get_api_rpc;
     use entropy_testing_utils::test_client::get_accounts;
 
-    let (api, rpc) = get_api_rpc().await;
+    let (api, rpc) = get_api_rpc().await?;
 
     let accounts = get_accounts(&api, &rpc)
         .await
-        .unwrap() // TODO
+        .map_err(|e| ServerFnError::ServerError(e.to_string()))?
         .into_iter()
         .map(|(account_id, registered_info)| RegisteredAccount::new(account_id, registered_info))
         .collect();

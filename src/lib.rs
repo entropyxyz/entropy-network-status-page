@@ -25,6 +25,11 @@ cfg_if! { if #[cfg(feature = "hydrate")] {
     }
 }}
 
+#[server(GetChainEndpoint, "/api")]
+pub async fn get_chain_endpoint() -> Result<String, ServerFnError> {
+    Ok(std::env::var("ENTROPY_TESTNET_ENDPOINT").unwrap_or("ws://localhost:9944".to_string()))
+}
+
 cfg_if! { if #[cfg(feature = "ssr")] {
     use entropy_testing_utils::{
         test_client::{get_api, get_rpc},
@@ -33,18 +38,17 @@ cfg_if! { if #[cfg(feature = "ssr")] {
     use subxt::{backend::legacy::LegacyRpcMethods, OnlineClient};
 
     /// Backend function for getting the chain API
-    pub async fn get_api_rpc() -> (
+    pub async fn get_api_rpc() -> Result<(
         OnlineClient<EntropyConfig>,
         LegacyRpcMethods<EntropyConfig>,
-    ) {
+    ), ServerFnError> {
 
-        let endpoint_addr =
-            std::env::var("ENTROPY_TESTNET").unwrap_or("ws://localhost:9944".to_string());
+        let endpoint_addr = get_chain_endpoint().await?;
 
         // TODO a panic here means the endpoint is unreachable - deal with this gracefully
-        let api = get_api(&endpoint_addr).await.unwrap();
-        let rpc = get_rpc(&endpoint_addr).await.unwrap();
-        (api, rpc)
+        let api = get_api(&endpoint_addr).await?;
+        let rpc = get_rpc(&endpoint_addr).await?;
+        Ok((api, rpc))
     }
 }}
 
@@ -122,10 +126,8 @@ pub fn DisplayValue(value: String, long_value: Option<String>) -> impl IntoView 
     let (long_value, _set_long_value) = create_signal(long_value);
     let copy = move |_| {
         cfg_if! { if #[cfg(feature = "hydrate")] {
-            log::info!("Copying...");
-            use wasm_bindgen_futures::spawn_local;
             #[cfg(web_sys_unstable_apis)]
-            spawn_local(async move {
+            wasm_bindgen_futures::spawn_local(async move {
                 let window = web_sys::window().unwrap();
                 match window.navigator().clipboard() {
                     Some(clipboard) => {

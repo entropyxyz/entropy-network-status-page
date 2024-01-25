@@ -50,11 +50,11 @@ pub async fn get_stored_programs() -> Result<Vec<Program>, ServerFnError> {
     use crate::get_api_rpc;
     use entropy_testing_utils::test_client::get_programs;
 
-    let (api, rpc) = get_api_rpc().await;
+    let (api, rpc) = get_api_rpc().await?;
 
     let programs = get_programs(&api, &rpc)
         .await
-        .unwrap() // TODO
+        .map_err(|e| ServerFnError::ServerError(e.to_string()))?
         .into_iter()
         .map(|(hash, program_info)| Program::new(hash, program_info))
         .collect();

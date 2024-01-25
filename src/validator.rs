@@ -74,11 +74,11 @@ pub async fn get_validators() -> Result<Vec<Validator>, ServerFnError> {
         Ok(validators)
     }
 
-    let (api, rpc) = get_api_rpc().await;
+    let (api, rpc) = get_api_rpc().await?;
 
     let validators = get_validators_internal(&api, &rpc)
         .await
-        .unwrap() // TODO
+        .map_err(|e| ServerFnError::ServerError(e.to_string()))?
         .into_iter()
         .map(|(stash_account, server_info)| Validator::new(stash_account, server_info))
         .collect();
