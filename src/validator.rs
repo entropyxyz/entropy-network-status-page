@@ -32,7 +32,7 @@ cfg_if::cfg_if! {
                 Validator {
                     tss_account: server_info.tss_account,
                     x25519_public_key: HexVec(server_info.x25519_public_key.to_vec()),
-                    endpoint: String::from_utf8(server_info.endpoint).unwrap(),
+                    endpoint: String::from_utf8(server_info.endpoint).unwrap_or("Cannot decode UTF8".to_string()),
                 }
             }
         }
