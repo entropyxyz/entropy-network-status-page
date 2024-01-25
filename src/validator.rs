@@ -14,9 +14,12 @@ pub struct Validator {
 pub fn Validator(validator: Validator) -> impl IntoView {
     view! {
         <tr class="hover:bg-gray-200">
-            <DisplayValue value={validator.tss_account.to_string()} long_value={None} />
-            <DisplayValue value={validator.x25519_public_key.to_string()} long_value={Some(format!("{:?}", validator.x25519_public_key))} />
-            <DisplayValue value={validator.endpoint} long_value={None} />
+            <DisplayValue value=validator.tss_account.to_string() long_value=None/>
+            <DisplayValue
+                value=validator.x25519_public_key.to_string()
+                long_value=Some(format!("{:?}", validator.x25519_public_key))
+            />
+            <DisplayValue value=validator.endpoint long_value=None/>
         </tr>
     }
 }

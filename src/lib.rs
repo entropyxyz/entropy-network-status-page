@@ -103,19 +103,18 @@ pub fn DetailsTable(
 ) -> impl IntoView {
     view! {
         <h2 class="text-xl my-4">{title}</h2>
-            <table class="border border-slate-500 table-auto">
-                <thead>
-                    <tr>
-                        {headings.into_iter()
-                            .map(|heading| view! { <th>{heading}</th>})
-                            .collect::<Vec<_>>()
-                        }
-                  </tr>
-                    </thead>
-                  <tbody>
-                  {children()}
-                  </tbody>
-            </table>
+        <table class="border border-slate-500 table-auto">
+            <thead>
+                <tr>
+                    {headings
+                        .into_iter()
+                        .map(|heading| view! { <th>{heading}</th> })
+                        .collect::<Vec<_>>()}
+
+                </tr>
+            </thead>
+            <tbody>{children()}</tbody>
+        </table>
     }
 }
 
@@ -145,6 +144,12 @@ pub fn DisplayValue(value: String, long_value: Option<String>) -> impl IntoView 
         }}
     };
     view! {
-        <td class="hover:font-extrabold px-4" title={move || format!("Click to copy {}", long_value.get())} on:click=copy><code>{value}</code></td>
+        <td
+            class="hover:font-extrabold px-4"
+            title=move || format!("Click to copy {}", long_value.get())
+            on:click=copy
+        >
+            <code>{value}</code>
+        </td>
     }
 }

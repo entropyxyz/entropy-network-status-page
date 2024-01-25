@@ -15,8 +15,11 @@ pub struct Program {
 pub fn Program(program: Program) -> impl IntoView {
     view! {
         <tr class="hover:bg-gray-200 text-right">
-            <DisplayValue value={program.hash.to_string()} long_value={Some(format!("{:?}", program.hash))} />
-            <DisplayValue value={program.stored_by} long_value={None} />
+            <DisplayValue
+                value=program.hash.to_string()
+                long_value=Some(format!("{:?}", program.hash))
+            />
+            <DisplayValue value=program.stored_by long_value=None/>
             <td class="px-4">{program.ref_counter}</td>
             <td class="px-4">{display_bytes(program.size as u64)}</td>
             <td class="px-4">{program.configurable}</td>
