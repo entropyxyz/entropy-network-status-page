@@ -54,7 +54,12 @@ fn HomePage() -> impl IntoView {
                                     .into_view()
                             }
                             Ok(endpoint) => {
-                                view! { <p>Chain endpoint: <code>{endpoint}</code></p> }.into_view()
+                                view! {
+                                    <p class="text-sm text-blue-gray-900">
+                                        Chain endpoint: <code>{endpoint}</code>
+                                    </p>
+                                }
+                                    .into_view()
                             }
                         })
                         .unwrap_or_default()
@@ -76,7 +81,12 @@ fn HomePage() -> impl IntoView {
                                     }
                                     Ok(accounts) => {
                                         if accounts.is_empty() {
-                                            view! { <p>"No registered accounts."</p> }.into_view()
+                                            view! {
+                                                <tr>
+                                                    <td>"No registered accounts."</td>
+                                                </tr>
+                                            }
+                                                .into_view()
                                         } else {
                                             accounts
                                                 .into_iter()
@@ -101,6 +111,7 @@ fn HomePage() -> impl IntoView {
                                 "Programs",
                             ]
                         >
+
                             {existing_accounts}
                         </DetailsTable>
                     }
@@ -122,7 +133,12 @@ fn HomePage() -> impl IntoView {
                                     }
                                     Ok(programs) => {
                                         if programs.is_empty() {
-                                            view! { <p>"No stored programs."</p> }.into_view()
+                                            view! {
+                                                <tr>
+                                                    <td>"No stored programs."</td>
+                                                </tr>
+                                            }
+                                                .into_view()
                                         } else {
                                             programs
                                                 .into_iter()
@@ -147,6 +163,7 @@ fn HomePage() -> impl IntoView {
                                 "Configurable?",
                             ]
                         >
+
                             {stored_programs}
                         </DetailsTable>
                     }
@@ -171,7 +188,12 @@ fn HomePage() -> impl IntoView {
                                     }
                                     Ok(validators) => {
                                         if validators.is_empty() {
-                                            view! { <p>"No validators."</p> }.into_view()
+                                            view! {
+                                                <tr>
+                                                    <td>"No validators."</td>
+                                                </tr>
+                                            }
+                                                .into_view()
                                         } else {
                                             validators
                                                 .into_iter()

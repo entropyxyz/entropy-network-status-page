@@ -102,19 +102,31 @@ pub fn DetailsTable(
     children: Children,
 ) -> impl IntoView {
     view! {
-        <h2 class="text-xl my-4">{title}</h2>
-        <table class="border border-slate-500 table-auto">
-            <thead>
-                <tr>
-                    {headings
-                        .into_iter()
-                        .map(|heading| view! { <th>{heading}</th> })
-                        .collect::<Vec<_>>()}
+        <h2 class="my-4 block font-sans text-xl antialiased leading-snug tracking-normal mt-4 text-gray-700">
+            {title}
+        </h2>
+        <div class="relative flex flex-col w-full h-full text-gray-700 bg-white shadow-md rounded-xl bg-clip-border">
+            <table class="w-full text-left table-auto min-w-max">
+                <thead>
+                    <tr>
+                        {headings
+                            .into_iter()
+                            .map(|heading| {
+                                view! {
+                                    <th class="p-4 border-b border-blue-gray-100 bg-blue-50">
+                                        <p class="block font-sans text-sm antialiased font-normal leading-none text-blue-gray-900 opacity-70">
+                                            {heading}
+                                        </p>
+                                    </th>
+                                }
+                            })
+                            .collect::<Vec<_>>()}
 
-                </tr>
-            </thead>
-            <tbody>{children()}</tbody>
-        </table>
+                    </tr>
+                </thead>
+                <tbody>{children()}</tbody>
+            </table>
+        </div>
     }
 }
 
@@ -145,11 +157,13 @@ pub fn DisplayValue(value: String, long_value: Option<String>) -> impl IntoView 
     };
     view! {
         <td
-            class="hover:font-extrabold px-4"
+
             title=move || format!("Click to copy {}", long_value.get())
             on:click=copy
         >
-            <code>{value}</code>
+            <p class="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
+                <code class="hover:font-extrabold p-4">{value}</code>
+            </p>
         </td>
     }
 }

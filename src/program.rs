@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Program {
     pub hash: String,
-    pub stored_by: String,
+    pub deployer: String,
     pub ref_counter: u128,
     pub size: usize,
     pub configurable: bool,
@@ -14,15 +14,27 @@ pub struct Program {
 #[component]
 pub fn Program(program: Program) -> impl IntoView {
     view! {
-        <tr class="hover:bg-gray-200 text-right">
+        <tr class="hover:bg-gray-200">
             <DisplayValue
                 value=program.hash.to_string()
                 long_value=Some(format!("{:?}", program.hash))
             />
-            <DisplayValue value=program.stored_by long_value=None/>
-            <td class="px-4">{program.ref_counter}</td>
-            <td class="px-4">{display_bytes(program.size as u64)}</td>
-            <td class="px-4">{program.configurable}</td>
+            <DisplayValue value=program.deployer long_value=None/>
+            <td class="p-4">
+                <p class="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
+                    {program.ref_counter}
+                </p>
+            </td>
+            <td class="p-4">
+                <p class="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
+                    {display_bytes(program.size as u64)}
+                </p>
+            </td>
+            <td class="p-4">
+                <p class="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
+                    {program.configurable}
+                </p>
+            </td>
         </tr>
     }
 }
@@ -38,10 +50,12 @@ cfg_if::cfg_if! {
             fn new(hash: H256, program_info: ProgramInfo<AccountId32>) -> Program {
                 Program {
                     hash: hash.to_string(),
-                    stored_by: program_info.program_modification_account.to_string(),
+                    deployer: program_info.deployer.to_string(),
                     ref_counter: program_info.ref_counter,
                     size: program_info.bytecode.len(),
-                    configurable: !program_info.program_type_definition.is_empty(),
+                    // TODO: If configuration interface is json we could display it. Waiting till
+                    // we have an example of a program with a configuration interface
+                    configurable: !program_info.configuration_interface.is_empty(),
                 }
             }
         }
