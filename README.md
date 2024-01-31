@@ -36,6 +36,7 @@ site/
 ```
 Set the following environment variables (updating for your project as needed):
 ```text
+ENTROPY_TESTNET_ENDPOINT="ws://something:9944"
 LEPTOS_OUTPUT_NAME="entropy-testnet-web-ui"
 LEPTOS_SITE_ROOT="site"
 LEPTOS_SITE_PKG_DIR="pkg"
