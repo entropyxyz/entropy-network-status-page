@@ -66,15 +66,18 @@ cfg_if::cfg_if! {
 pub async fn get_stored_programs() -> Result<Vec<Program>, ServerFnError> {
     use crate::get_api_rpc;
     use entropy_testing_utils::test_client::get_programs;
+    use futures::stream::{self, StreamExt};
 
     let (api, rpc) = get_api_rpc().await?;
 
-    let programs = get_programs(&api, &rpc)
+    let programs_iter = get_programs(&api, &rpc)
         .await
         .map_err(|e| ServerFnError::ServerError(e.to_string()))?
         .into_iter()
-        .map(|(hash, program_info)| Program::new(hash, program_info))
-        .collect();
+        .map(|(hash, program_info)| async move { Program::new(hash, program_info) });
 
-    Ok(programs)
+    // Only allow 3 concurrent http requests at a time (TODO could speed things up by increasing
+    // this)
+    let programs_stream = stream::iter(programs_iter).buffer_unordered(3);
+    Ok(programs_stream.collect::<Vec<Program>>().await)
 }

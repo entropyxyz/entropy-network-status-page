@@ -2146,6 +2146,7 @@ dependencies = [
  "console_log",
  "entropy-shared",
  "entropy-testing-utils",
+ "futures",
  "hex",
  "http",
  "leptos",
