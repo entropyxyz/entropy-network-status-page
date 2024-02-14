@@ -39,6 +39,9 @@ pretty-bytes-rust = "0.1.0"
 anyhow = "1.0.75"
 parity-scale-codec="3.0.0"
 futures = { version = "0.3.30", optional = true }
+reqwest = { version = "0.11.23", optional = true }
+cargo_metadata = { version = "0.18.1", optional = true }
+serde_json = { version = "1.0.113", optional = true }
 
 [features]
 hydrate = [
@@ -62,6 +65,9 @@ ssr = [
   "dep:tracing",
   "dep:entropy-testing-utils",
   "dep:futures",
+  "dep:reqwest",
+  "dep:cargo_metadata",
+  "dep:serde_json",
   "subxt/substrate-compat",
   "subxt/native",
   "entropy-shared/std",
