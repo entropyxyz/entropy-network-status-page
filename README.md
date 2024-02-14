@@ -19,6 +19,7 @@ Compiling for release:
 ```bash
 RUSTFLAGS=--cfg=web_sys_unstable_apis cargo leptos build --release
 ```
+
 will generate server binary in target/server/release and site package in target/site
 
 ## Executing a Server on a Remote Machine Without the Toolchain
