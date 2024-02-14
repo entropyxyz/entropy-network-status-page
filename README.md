@@ -2,8 +2,6 @@
 
 A simple website showing status information about the Entropy Testnet
 
-This is work in progress. It currently only displays the details of registered Entropy users. 
-
 To build you need cargo-leptos:
 
 ```bash
@@ -44,3 +42,11 @@ LEPTOS_SITE_ADDR="127.0.0.1:3000"
 LEPTOS_RELOAD_PORT="3001"
 ```
 Finally, run the server binary.
+
+## HTTPS support
+
+If the environment variable `TLS_CERT_LOCATION` is present, it will search that directory for the TLS certificate and private key in PEM format, which should be named `fullchain.pem` and `privkey.pem` respectively.
+
+The `LEPTOS_SITE_ADDR` should have the port you want to run https: `<ipaddress>:443`.
+
+The server will also open port 80 and redirect traffic there to https.
