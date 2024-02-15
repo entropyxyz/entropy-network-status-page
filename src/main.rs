@@ -3,8 +3,7 @@
 async fn main() {
     use axum::{routing::post, Router};
     use axum_server::tls_rustls::RustlsConfig;
-    use entropy_testnet_web_ui::app::*;
-    use entropy_testnet_web_ui::fileserv::file_and_error_handler;
+    use entropy_network_status_page::{app::*, fileserv::file_and_error_handler};
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
     use std::path::PathBuf;
