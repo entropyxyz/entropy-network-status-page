@@ -2030,6 +2030,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "entropy-network-status-page"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "axum",
+ "axum-server",
+ "cfg-if",
+ "console_error_panic_hook",
+ "console_log",
+ "entropy-shared",
+ "entropy-testing-utils",
+ "hex",
+ "http",
+ "leptos",
+ "leptos_axum",
+ "leptos_meta",
+ "leptos_router",
+ "log",
+ "parity-scale-codec",
+ "pretty-bytes-rust",
+ "serde",
+ "simple_logger",
+ "subxt",
+ "thiserror",
+ "tokio",
+ "tower",
+ "tower-http 0.4.4",
+ "tracing",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+]
+
+[[package]]
 name = "entropy-programs-core"
 version = "0.1.0"
 source = "git+https://github.com/entropyxyz/programs.git?tag=v0.8.0#12e6b655c9af3aa1eecb6dea7f70a6ed1d43d0de"
@@ -2132,40 +2166,6 @@ dependencies = [
  "which",
  "x25519-dalek",
  "zeroize",
-]
-
-[[package]]
-name = "entropy-testnet-web-ui"
-version = "0.0.1"
-dependencies = [
- "anyhow",
- "axum",
- "axum-server",
- "cfg-if",
- "console_error_panic_hook",
- "console_log",
- "entropy-shared",
- "entropy-testing-utils",
- "hex",
- "http",
- "leptos",
- "leptos_axum",
- "leptos_meta",
- "leptos_router",
- "log",
- "parity-scale-codec",
- "pretty-bytes-rust",
- "serde",
- "simple_logger",
- "subxt",
- "thiserror",
- "tokio",
- "tower",
- "tower-http 0.4.4",
- "tracing",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
 ]
 
 [[package]]

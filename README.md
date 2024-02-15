@@ -1,4 +1,4 @@
-# entropy-testnet-web-ui 
+# entropy-network-status-page 
 
 A simple website showing status information about the Entropy Testnet
 
@@ -30,13 +30,13 @@ After running a `cargo leptos build --release` the minimum files needed are:
 
 Copy these files to your remote server. The directory structure should be:
 ```text
-entropy-testnet-web-ui
+entropy-network-status-page
 site/
 ```
 Set the following environment variables (updating for your project as needed):
 ```text
 ENTROPY_TESTNET_ENDPOINT="ws://something:9944"
-LEPTOS_OUTPUT_NAME="entropy-testnet-web-ui"
+LEPTOS_OUTPUT_NAME="entropy-network-status-page"
 LEPTOS_SITE_ROOT="site"
 LEPTOS_SITE_PKG_DIR="pkg"
 LEPTOS_SITE_ADDR="127.0.0.1:3000"
