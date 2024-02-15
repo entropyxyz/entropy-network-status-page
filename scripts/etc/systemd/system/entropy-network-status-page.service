@@ -1,0 +1,24 @@
+[Unit]
+Description=Entropy Network Status Page service
+
+[Service]
+# Environment variables that do not depend on the runtime environment
+# can be set here, or in following `Environment=` lines, safely.
+Environment="LEPTOS_SITE_ROOT=site"
+Environment="LEPTOS_SITE_ADDR=0.0.0.0:80"
+# Environment variables that need to be dynamically calculated based
+# on the runtime environment should be created during boot time by a
+# startup script (e.g., `cloud-init`, aka "user data") and written to
+# the following `EnvironmentFile=` path.
+EnvironmentFile=/run/entropy-network-status-page/environment
+# Each environment variable that the binary needs access to must be
+# explicitly declared in this list in order for systemd to export it
+# into the child process's environment.
+PassEnvironment=LEPTOS_SITE_ADDR
+PassEnvironment=ENTROPY_TESTNET_ENDPOINT
+PassEnvironment=LEPTOS_SITE_ROOT
+
+ExecStart=/usr/local/bin/entropy-testnet-web-ui
+
+[Install]
+WantedBy=multi-user.target
