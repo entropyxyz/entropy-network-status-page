@@ -1,6 +1,5 @@
 use crate::{
     error_template::{AppError, ErrorTemplate},
-    get_chain_endpoint,
     program::{get_stored_programs, Program},
     registered_account::{get_registered_accounts, RegisteredAccount},
     validator::{get_validators, Validator},
@@ -39,33 +38,11 @@ fn HomePage() -> impl IntoView {
     let accounts = create_resource(|| (), move |_| get_registered_accounts());
     let programs = create_resource(|| (), move |_| get_stored_programs());
     let validators = create_resource(|| (), move |_| get_validators());
-    let endpoint = create_resource(|| (), move |_| get_chain_endpoint());
+    // let endpoint = create_resource(|| (), move |_| get_chain_endpoint());
     let loading = move || view! { <p>"Loading..."</p> };
     view! {
         <div class="container mx-auto">
             <h1 class="text-2xl my-4">"Entropy Testnet Status Page"</h1>
-            <Transition fallback=loading>
-                {move || {
-                    endpoint
-                        .get()
-                        .map(move |endpoint| match endpoint {
-                            Err(e) => {
-                                view! { <pre class="error">"server error: " {e.to_string()}</pre> }
-                                    .into_view()
-                            }
-                            Ok(endpoint) => {
-                                view! {
-                                    <p class="text-sm text-blue-gray-900">
-                                        Chain endpoint: <code>{endpoint}</code>
-                                    </p>
-                                }
-                                    .into_view()
-                            }
-                        })
-                        .unwrap_or_default()
-                }}
-
-            </Transition>
             <Transition fallback=loading>
                 {move || {
                     let existing_accounts = {

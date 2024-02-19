@@ -1,56 +1,29 @@
 pub mod app;
+pub mod chain_api;
 pub mod error_template;
-pub mod fileserv;
 pub mod program;
 pub mod registered_account;
 pub mod validator;
 
-use cfg_if::cfg_if;
 use leptos::*;
 use pretty_bytes_rust::pretty_bytes;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-cfg_if! { if #[cfg(feature = "hydrate")] {
-    use wasm_bindgen::prelude::wasm_bindgen;
-    use crate::app::*;
+// pub async fn get_chain_endpoint() -> Result<String, ServerFnError> {
+//     Ok(std::env::var("ENTROPY_TESTNET_ENDPOINT").unwrap_or("ws://localhost:9944".to_string()))
+// }
 
-    #[wasm_bindgen]
-    pub fn hydrate() {
-        // initializes logging using the `log` crate
-        _ = console_log::init_with_level(log::Level::Debug);
-        console_error_panic_hook::set_once();
+use crate::chain_api::{get_api, get_rpc, EntropyConfig};
+use subxt::{backend::legacy::LegacyRpcMethods, OnlineClient};
+pub async fn get_api_rpc(
+) -> Result<(OnlineClient<EntropyConfig>, LegacyRpcMethods<EntropyConfig>), ServerFnError> {
+    let endpoint_addr = "ws://localhost:9944".to_string(); // TODO
 
-        leptos::mount_to_body(App);
-    }
-}}
-
-#[server(GetChainEndpoint, "/api")]
-pub async fn get_chain_endpoint() -> Result<String, ServerFnError> {
-    Ok(std::env::var("ENTROPY_TESTNET_ENDPOINT").unwrap_or("ws://localhost:9944".to_string()))
+    let api = get_api(&endpoint_addr).await?;
+    let rpc = get_rpc(&endpoint_addr).await?;
+    Ok((api, rpc))
 }
-
-cfg_if! { if #[cfg(feature = "ssr")] {
-    use entropy_testing_utils::{
-        test_client::{get_api, get_rpc},
-    };
-    use entropy_testing_utils::chain_api::EntropyConfig;
-    use subxt::{backend::legacy::LegacyRpcMethods, OnlineClient};
-
-    /// Backend function for getting the chain API
-    pub async fn get_api_rpc() -> Result<(
-        OnlineClient<EntropyConfig>,
-        LegacyRpcMethods<EntropyConfig>,
-    ), ServerFnError> {
-
-        let endpoint_addr = get_chain_endpoint().await?;
-
-        // TODO a panic here means the endpoint is unreachable - deal with this gracefully
-        let api = get_api(&endpoint_addr).await?;
-        let rpc = get_rpc(&endpoint_addr).await?;
-        Ok((api, rpc))
-    }
-}}
 
 /// For displaying Vec<u8> nicely
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -136,24 +109,20 @@ pub fn DisplayValue(value: String, long_value: Option<String>) -> impl IntoView 
     let long_value = long_value.unwrap_or(value.clone());
     let (long_value, _set_long_value) = create_signal(long_value);
     let copy = move |_| {
-        cfg_if! { if #[cfg(feature = "hydrate")] {
-            #[cfg(web_sys_unstable_apis)]
-            wasm_bindgen_futures::spawn_local(async move {
-                let window = web_sys::window().unwrap();
-                match window.navigator().clipboard() {
-                    Some(clipboard) => {
-                        let promise = clipboard.write_text(&long_value.get_untracked());
-                        let _result = wasm_bindgen_futures::JsFuture::from(promise)
-                            .await
-                            .unwrap();
-                        log::info!("Copied to clipboard");
-                    }
-                    None => {
-                        log::warn!("Failed to copy to clipboard");
-                    }
+        #[cfg(web_sys_unstable_apis)]
+        wasm_bindgen_futures::spawn_local(async move {
+            let window = web_sys::window().unwrap();
+            match window.navigator().clipboard() {
+                Some(clipboard) => {
+                    let promise = clipboard.write_text(&long_value.get_untracked());
+                    let _result = wasm_bindgen_futures::JsFuture::from(promise).await.unwrap();
+                    log::info!("Copied to clipboard");
                 }
-            });
-        }}
+                None => {
+                    log::warn!("Failed to copy to clipboard");
+                }
+            }
+        });
     };
     view! {
         <td

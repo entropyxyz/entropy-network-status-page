@@ -42,44 +42,44 @@ pub fn KeyVisibility(key_visibility: String, color: String) -> impl IntoView {
     }
 }
 
-cfg_if::cfg_if! {
-    if #[cfg(feature = "ssr")] {
-        use entropy_testing_utils::{
-            chain_api::entropy::runtime_types::pallet_relayer::pallet::RegisteredInfo,
-        };
-        use entropy_shared::KeyVisibility;
-
-        impl RegisteredAccount {
-            fn new(account_id: AccountId32, registered_info: RegisteredInfo) -> RegisteredAccount {
-                RegisteredAccount {
-                    account_id,
-                    key_visibility: match registered_info.key_visibility.0 {
-                        KeyVisibility::Public => ("Public".to_string(), "green".to_string()),
-                        KeyVisibility::Permissioned => ("Permissioned".to_string(), "amber".to_string()),
-                        KeyVisibility::Private(_) => ("Private".to_string(), "red".to_string()),
-                    },
-                    verifying_key: HexVec(registered_info.verifying_key.0),
-                    program_pointers: registered_info.programs_data.0.into_iter().map(|program_instance| format!("{}", program_instance.program_pointer)).collect(),
-                    program_modification_account: registered_info.program_modification_account.to_string(),
-                }
-            }
-        }
-    }
-}
-
-#[server(GetRegisteredAccounts, "/api")]
-pub async fn get_registered_accounts() -> Result<Vec<RegisteredAccount>, ServerFnError> {
-    use crate::get_api_rpc;
-    use entropy_testing_utils::test_client::get_accounts;
-
-    let (api, rpc) = get_api_rpc().await?;
-
-    let accounts = get_accounts(&api, &rpc)
-        .await
-        .map_err(|e| ServerFnError::ServerError(e.to_string()))?
-        .into_iter()
-        .map(|(account_id, registered_info)| RegisteredAccount::new(account_id, registered_info))
-        .collect();
-
-    Ok(accounts)
-}
+// cfg_if::cfg_if! {
+//     if #[cfg(feature = "ssr")] {
+//         use entropy_testing_utils::{
+//             chain_api::entropy::runtime_types::pallet_relayer::pallet::RegisteredInfo,
+//         };
+//         use entropy_shared::KeyVisibility;
+//
+//         impl RegisteredAccount {
+//             fn new(account_id: AccountId32, registered_info: RegisteredInfo) -> RegisteredAccount {
+//                 RegisteredAccount {
+//                     account_id,
+//                     key_visibility: match registered_info.key_visibility.0 {
+//                         KeyVisibility::Public => ("Public".to_string(), "green".to_string()),
+//                         KeyVisibility::Permissioned => ("Permissioned".to_string(), "amber".to_string()),
+//                         KeyVisibility::Private(_) => ("Private".to_string(), "red".to_string()),
+//                     },
+//                     verifying_key: HexVec(registered_info.verifying_key.0),
+//                     program_pointers: registered_info.programs_data.0.into_iter().map(|program_instance| format!("{}", program_instance.program_pointer)).collect(),
+//                     program_modification_account: registered_info.program_modification_account.to_string(),
+//                 }
+//             }
+//         }
+//     }
+// }
+//
+// #[server(GetRegisteredAccounts, "/api")]
+// pub async fn get_registered_accounts() -> Result<Vec<RegisteredAccount>, ServerFnError> {
+//     use crate::get_api_rpc;
+//     use entropy_testing_utils::test_client::get_accounts;
+//
+//     let (api, rpc) = get_api_rpc().await?;
+//
+//     let accounts = get_accounts(&api, &rpc)
+//         .await
+//         .map_err(|e| ServerFnError::ServerError(e.to_string()))?
+//         .into_iter()
+//         .map(|(account_id, registered_info)| RegisteredAccount::new(account_id, registered_info))
+//         .collect();
+//
+//     Ok(accounts)
+// }

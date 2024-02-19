@@ -1,3 +1,11 @@
+use crate::app::App;
+
+pub fn main() {
+    _ = console_log::init_with_level(log::Level::Debug);
+    console_error_panic_hook::set_once();
+    leptos::mount_to_body(App);
+}
+
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
@@ -62,52 +70,52 @@ pub fn main() {
     // see lib.rs for hydration function instead
 }
 
-#[cfg(feature = "ssr")]
-async fn redirect_http_to_https(ip_addr: std::net::IpAddr, http_port: u16, https_port: u16) {
-    use axum::{
-        extract::Host,
-        handler::HandlerWithoutStateExt,
-        http::{StatusCode, Uri},
-        response::Redirect,
-    };
-    fn make_https(
-        host: String,
-        uri: axum::http::Uri,
-        http_port: u16,
-        https_port: u16,
-    ) -> Result<axum::http::Uri, axum::BoxError> {
-        let mut parts = uri.into_parts();
-
-        parts.scheme = Some(axum::http::uri::Scheme::HTTPS);
-
-        if parts.path_and_query.is_none() {
-            parts.path_and_query = Some("/".parse().unwrap());
-        }
-
-        let https_host = host.replace(&http_port.to_string(), &https_port.to_string());
-        parts.authority = Some(https_host.parse()?);
-
-        Ok(axum::http::Uri::from_parts(parts)?)
-    }
-
-    let redirect = move |Host(host): Host, uri: Uri| async move {
-        match make_https(host, uri, http_port, https_port) {
-            Ok(uri) => Ok(Redirect::permanent(&uri.to_string())),
-            Err(error) => {
-                tracing::warn!(%error, "failed to convert URI to HTTPS");
-                Err(StatusCode::BAD_REQUEST)
-            }
-        }
-    };
-
-    let addr = std::net::SocketAddr::from((ip_addr, http_port));
-    log::debug!("listening on {}", &addr);
-
-    axum::Server::bind(&addr)
-        .serve(redirect.into_make_service())
-        .await
-        .unwrap();
-    // axum::serve(listener, redirect.into_make_service())
-    //     .await
-    //     .unwrap();
-}
+// #[cfg(feature = "ssr")]
+// async fn redirect_http_to_https(ip_addr: std::net::IpAddr, http_port: u16, https_port: u16) {
+//     use axum::{
+//         extract::Host,
+//         handler::HandlerWithoutStateExt,
+//         http::{StatusCode, Uri},
+//         response::Redirect,
+//     };
+//     fn make_https(
+//         host: String,
+//         uri: axum::http::Uri,
+//         http_port: u16,
+//         https_port: u16,
+//     ) -> Result<axum::http::Uri, axum::BoxError> {
+//         let mut parts = uri.into_parts();
+//
+//         parts.scheme = Some(axum::http::uri::Scheme::HTTPS);
+//
+//         if parts.path_and_query.is_none() {
+//             parts.path_and_query = Some("/".parse().unwrap());
+//         }
+//
+//         let https_host = host.replace(&http_port.to_string(), &https_port.to_string());
+//         parts.authority = Some(https_host.parse()?);
+//
+//         Ok(axum::http::Uri::from_parts(parts)?)
+//     }
+//
+//     let redirect = move |Host(host): Host, uri: Uri| async move {
+//         match make_https(host, uri, http_port, https_port) {
+//             Ok(uri) => Ok(Redirect::permanent(&uri.to_string())),
+//             Err(error) => {
+//                 tracing::warn!(%error, "failed to convert URI to HTTPS");
+//                 Err(StatusCode::BAD_REQUEST)
+//             }
+//         }
+//     };
+//
+//     let addr = std::net::SocketAddr::from((ip_addr, http_port));
+//     log::debug!("listening on {}", &addr);
+//
+//     axum::Server::bind(&addr)
+//         .serve(redirect.into_make_service())
+//         .await
+//         .unwrap();
+//     // axum::serve(listener, redirect.into_make_service())
+//     //     .await
+//     //     .unwrap();
+// }
