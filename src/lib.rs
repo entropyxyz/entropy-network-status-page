@@ -18,7 +18,7 @@ use crate::chain_api::{get_api, get_rpc, EntropyConfig};
 use subxt::{backend::legacy::LegacyRpcMethods, OnlineClient};
 pub async fn get_api_rpc(
 ) -> Result<(OnlineClient<EntropyConfig>, LegacyRpcMethods<EntropyConfig>), ServerFnError> {
-    let endpoint_addr = "ws://localhost:9944".to_string(); // TODO
+    let endpoint_addr = "ws://54.175.228.156:9944".to_string(); // TODO
 
     let api = get_api(&endpoint_addr).await?;
     let rpc = get_rpc(&endpoint_addr).await?;

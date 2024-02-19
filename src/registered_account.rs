@@ -1,7 +1,13 @@
-use crate::{DisplayValue, HexVec};
+use crate::{
+    chain_api::{entropy::runtime_types::pallet_relayer::pallet::RegisteredInfo, EntropyConfig},
+    get_api_rpc, DisplayValue, HexVec,
+};
+use anyhow::anyhow;
+use entropy_shared::KeyVisibility;
 use leptos::*;
+use parity_scale_codec::Decode;
 use serde::{Deserialize, Serialize};
-use subxt::utils::AccountId32;
+use subxt::{backend::legacy::LegacyRpcMethods, utils::AccountId32, OnlineClient};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RegisteredAccount {
@@ -10,6 +16,27 @@ pub struct RegisteredAccount {
     pub verifying_key: HexVec,
     pub program_pointers: Vec<String>,
     pub program_modification_account: String,
+}
+
+impl RegisteredAccount {
+    fn new(account_id: AccountId32, registered_info: RegisteredInfo) -> RegisteredAccount {
+        RegisteredAccount {
+            account_id,
+            key_visibility: match registered_info.key_visibility.0 {
+                KeyVisibility::Public => ("Public".to_string(), "green".to_string()),
+                KeyVisibility::Permissioned => ("Permissioned".to_string(), "amber".to_string()),
+                KeyVisibility::Private(_) => ("Private".to_string(), "red".to_string()),
+            },
+            verifying_key: HexVec(registered_info.verifying_key.0),
+            program_pointers: registered_info
+                .programs_data
+                .0
+                .into_iter()
+                .map(|program_instance| format!("{}", program_instance.program_pointer))
+                .collect(),
+            program_modification_account: registered_info.program_modification_account.to_string(),
+        }
+    }
 }
 
 #[component]
@@ -42,44 +69,37 @@ pub fn KeyVisibility(key_visibility: String, color: String) -> impl IntoView {
     }
 }
 
-// cfg_if::cfg_if! {
-//     if #[cfg(feature = "ssr")] {
-//         use entropy_testing_utils::{
-//             chain_api::entropy::runtime_types::pallet_relayer::pallet::RegisteredInfo,
-//         };
-//         use entropy_shared::KeyVisibility;
-//
-//         impl RegisteredAccount {
-//             fn new(account_id: AccountId32, registered_info: RegisteredInfo) -> RegisteredAccount {
-//                 RegisteredAccount {
-//                     account_id,
-//                     key_visibility: match registered_info.key_visibility.0 {
-//                         KeyVisibility::Public => ("Public".to_string(), "green".to_string()),
-//                         KeyVisibility::Permissioned => ("Permissioned".to_string(), "amber".to_string()),
-//                         KeyVisibility::Private(_) => ("Private".to_string(), "red".to_string()),
-//                     },
-//                     verifying_key: HexVec(registered_info.verifying_key.0),
-//                     program_pointers: registered_info.programs_data.0.into_iter().map(|program_instance| format!("{}", program_instance.program_pointer)).collect(),
-//                     program_modification_account: registered_info.program_modification_account.to_string(),
-//                 }
-//             }
-//         }
-//     }
-// }
-//
-// #[server(GetRegisteredAccounts, "/api")]
-// pub async fn get_registered_accounts() -> Result<Vec<RegisteredAccount>, ServerFnError> {
-//     use crate::get_api_rpc;
-//     use entropy_testing_utils::test_client::get_accounts;
-//
-//     let (api, rpc) = get_api_rpc().await?;
-//
-//     let accounts = get_accounts(&api, &rpc)
-//         .await
-//         .map_err(|e| ServerFnError::ServerError(e.to_string()))?
-//         .into_iter()
-//         .map(|(account_id, registered_info)| RegisteredAccount::new(account_id, registered_info))
-//         .collect();
-//
-//     Ok(accounts)
-// }
+pub async fn get_registered_accounts() -> Result<Vec<RegisteredAccount>, ServerFnError> {
+    let (api, rpc) = get_api_rpc().await?;
+
+    let accounts = get_accounts(&api, &rpc)
+        .await
+        .map_err(|e| ServerFnError::ServerError(e.to_string()))?
+        .into_iter()
+        .map(|(account_id, registered_info)| RegisteredAccount::new(account_id, registered_info))
+        .collect();
+
+    Ok(accounts)
+}
+
+/// Get info on all registered accounts
+pub async fn get_accounts(
+    api: &OnlineClient<EntropyConfig>,
+    rpc: &LegacyRpcMethods<EntropyConfig>,
+) -> anyhow::Result<Vec<(AccountId32, RegisteredInfo)>> {
+    let block_hash = rpc
+        .chain_get_block_hash(None)
+        .await?
+        .ok_or_else(|| anyhow!("Error getting block hash"))?;
+    let keys = Vec::<()>::new();
+    let storage_address = subxt::dynamic::storage("Relayer", "Registered", keys);
+    let mut iter = api.storage().at(block_hash).iter(storage_address).await?;
+    let mut accounts = Vec::new();
+    while let Some(Ok((storage_key, account))) = iter.next().await {
+        let decoded = account.into_encoded();
+        let registered_info = RegisteredInfo::decode(&mut decoded.as_ref())?;
+        let key: [u8; 32] = storage_key[storage_key.len() - 32..].try_into()?;
+        accounts.push((AccountId32(key), registered_info))
+    }
+    Ok(accounts)
+}
