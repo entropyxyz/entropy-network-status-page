@@ -18,7 +18,6 @@ pub fn App() -> impl IntoView {
     // <Title text="Entropy Testnet Status Page"/>
 
     view! {
-
         <Router fallback=|| {
             let mut outside_errors = Errors::default();
             outside_errors.insert_with_default_key(AppError::NotFound);
@@ -38,11 +37,15 @@ fn HomePage() -> impl IntoView {
     let accounts = create_resource(|| (), move |_| get_registered_accounts());
     let programs = create_resource(|| (), move |_| get_stored_programs());
     let validators = create_resource(|| (), move |_| get_validators());
-    // let endpoint = create_resource(|| (), move |_| get_chain_endpoint());
     let loading = move || view! { <p>"Loading..."</p> };
     view! {
         <div class="container mx-auto">
-            <h1 class="text-2xl my-4">"Entropy Testnet Status Page"</h1>
+            <h1 class="text-2xl my-4">
+                {format!("Entropy {} Status Page", crate::ENTROPY_NETWORK_NAME)}
+            </h1>
+            <p class="text-sm text-blue-gray-900">
+                "Chain endpoint: " <code>{crate::ENTROPY_NETWORK_ENDPOINT}</code>
+            </p>
             <Transition fallback=loading>
                 {move || {
                     let existing_accounts = {

@@ -63,18 +63,6 @@ pub fn Program(program: Program) -> impl IntoView {
     }
 }
 
-// cfg_if::cfg_if! {
-//     if #[cfg(feature = "ssr")] {
-//         use entropy_testing_utils::{
-//             chain_api::entropy::runtime_types::pallet_programs::pallet::ProgramInfo,
-//         };
-//         use subxt::utils::{AccountId32, H256};
-//
-// }
-//
-// #[server(GetStoredPrograms, "/api")]
-//
-
 pub async fn get_stored_programs() -> Result<Vec<Program>, ServerFnError> {
     let (api, rpc) = get_api_rpc().await?;
 

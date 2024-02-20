@@ -10,6 +10,11 @@ use pretty_bytes_rust::pretty_bytes;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+include!(concat!(env!("OUT_DIR"), "/endpoint.rs"));
+
+// pub use ENTROPY_NETWORK_ENDPOINT;
+// pub use ENTROPY_NETWORK_NAME;
+
 // pub async fn get_chain_endpoint() -> Result<String, ServerFnError> {
 //     Ok(std::env::var("ENTROPY_TESTNET_ENDPOINT").unwrap_or("ws://localhost:9944".to_string()))
 // }
@@ -18,10 +23,8 @@ use crate::chain_api::{get_api, get_rpc, EntropyConfig};
 use subxt::{backend::legacy::LegacyRpcMethods, OnlineClient};
 pub async fn get_api_rpc(
 ) -> Result<(OnlineClient<EntropyConfig>, LegacyRpcMethods<EntropyConfig>), ServerFnError> {
-    let endpoint_addr = "ws://54.175.228.156:9944".to_string(); // TODO
-
-    let api = get_api(&endpoint_addr).await?;
-    let rpc = get_rpc(&endpoint_addr).await?;
+    let api = get_api(ENTROPY_NETWORK_ENDPOINT).await?;
+    let rpc = get_rpc(ENTROPY_NETWORK_ENDPOINT).await?;
     Ok((api, rpc))
 }
 
