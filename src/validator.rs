@@ -1,13 +1,32 @@
-use crate::{DisplayValue, HexVec};
+use crate::{
+    chain_api::{
+        entropy::runtime_types::pallet_staking_extension::pallet::ServerInfo, EntropyConfig,
+    },
+    get_api_rpc, DisplayValue, HexVec,
+};
+use anyhow::anyhow;
 use leptos::*;
+use parity_scale_codec::Decode;
 use serde::{Deserialize, Serialize};
 use subxt::utils::AccountId32;
+use subxt::{backend::legacy::LegacyRpcMethods, Config, OnlineClient};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Validator {
     tss_account: AccountId32,
     x25519_public_key: HexVec,
     endpoint: String,
+}
+
+impl Validator {
+    fn new(_stash_account: AccountId32, server_info: ServerInfo<AccountId32>) -> Validator {
+        Validator {
+            tss_account: server_info.tss_account,
+            x25519_public_key: HexVec(server_info.x25519_public_key.to_vec()),
+            endpoint: String::from_utf8(server_info.endpoint)
+                .unwrap_or("Cannot decode UTF8".to_string()),
+        }
+    }
 }
 
 #[component]
@@ -24,32 +43,7 @@ pub fn Validator(validator: Validator) -> impl IntoView {
     }
 }
 
-cfg_if::cfg_if! {
-    if #[cfg(feature = "ssr")] {
-        use entropy_testing_utils::{
-            chain_api::entropy::runtime_types::pallet_staking_extension::pallet::ServerInfo,
-        };
-
-        impl Validator {
-            fn new(_stash_account: AccountId32, server_info: ServerInfo<AccountId32>) -> Validator {
-                Validator {
-                    tss_account: server_info.tss_account,
-                    x25519_public_key: HexVec(server_info.x25519_public_key.to_vec()),
-                    endpoint: String::from_utf8(server_info.endpoint).unwrap_or("Cannot decode UTF8".to_string()),
-                }
-            }
-        }
-    }
-}
-
-#[server(GetValidators, "/api")]
 pub async fn get_validators() -> Result<Vec<Validator>, ServerFnError> {
-    use crate::get_api_rpc;
-    use anyhow::anyhow;
-    use entropy_testing_utils::chain_api::EntropyConfig;
-    use parity_scale_codec::Decode;
-    use subxt::{backend::legacy::LegacyRpcMethods, Config, OnlineClient};
-
     async fn get_validators_internal(
         api: &OnlineClient<EntropyConfig>,
         rpc: &LegacyRpcMethods<EntropyConfig>,

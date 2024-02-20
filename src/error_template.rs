@@ -1,10 +1,6 @@
-use cfg_if::cfg_if;
 use http::status::StatusCode;
 use leptos::*;
 use thiserror::Error;
-
-#[cfg(feature = "ssr")]
-use leptos_axum::ResponseOptions;
 
 #[derive(Clone, Debug, Error)]
 pub enum AppError {
@@ -43,15 +39,6 @@ pub fn ErrorTemplate(
         .filter_map(|(_k, v)| v.downcast_ref::<AppError>().cloned())
         .collect();
     println!("Errors: {errors:#?}");
-
-    // Only the response code for the first error is actually sent from the server
-    // this may be customized by the specific application
-    cfg_if! { if #[cfg(feature="ssr")] {
-        let response = use_context::<ResponseOptions>();
-        if let Some(response) = response {
-            response.set_status(errors[0].status_code());
-        }
-    }}
 
     view! {
         <h1>{if errors.len() > 1 { "Errors" } else { "Error" }}</h1>

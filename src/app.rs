@@ -1,25 +1,20 @@
 use crate::{
     error_template::{AppError, ErrorTemplate},
-    get_chain_endpoint,
     program::{get_stored_programs, Program},
     registered_account::{get_registered_accounts, RegisteredAccount},
     validator::{get_validators, Validator},
     DetailsTable,
 };
 use leptos::*;
-use leptos_meta::*;
+use leptos_meta::{provide_meta_context, Title};
 use leptos_router::*;
 
 #[component]
 pub fn App() -> impl IntoView {
-    // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
 
     view! {
-        <Stylesheet id="leptos" href="/pkg/entropy-network-status-page.css"/>
-
-        <Title text="Entropy Testnet Status Page"/>
-
+        <Title text=format!("Entropy {} Status Page", crate::ENTROPY_NETWORK_NAME)/>
         <Router fallback=|| {
             let mut outside_errors = Errors::default();
             outside_errors.insert_with_default_key(AppError::NotFound);
@@ -39,33 +34,15 @@ fn HomePage() -> impl IntoView {
     let accounts = create_resource(|| (), move |_| get_registered_accounts());
     let programs = create_resource(|| (), move |_| get_stored_programs());
     let validators = create_resource(|| (), move |_| get_validators());
-    let endpoint = create_resource(|| (), move |_| get_chain_endpoint());
     let loading = move || view! { <p>"Loading..."</p> };
     view! {
         <div class="container mx-auto">
-            <h1 class="text-2xl my-4">"Entropy Testnet Status Page"</h1>
-            <Transition fallback=loading>
-                {move || {
-                    endpoint
-                        .get()
-                        .map(move |endpoint| match endpoint {
-                            Err(e) => {
-                                view! { <pre class="error">"server error: " {e.to_string()}</pre> }
-                                    .into_view()
-                            }
-                            Ok(endpoint) => {
-                                view! {
-                                    <p class="text-sm text-blue-gray-900">
-                                        Chain endpoint: <code>{endpoint}</code>
-                                    </p>
-                                }
-                                    .into_view()
-                            }
-                        })
-                        .unwrap_or_default()
-                }}
-
-            </Transition>
+            <h1 class="text-2xl my-4">
+                {format!("Entropy {} Status Page", crate::ENTROPY_NETWORK_NAME)}
+            </h1>
+            <p class="text-sm text-blue-gray-900">
+                "Chain endpoint: " <code>{crate::ENTROPY_NETWORK_ENDPOINT}</code>
+            </p>
             <Transition fallback=loading>
                 {move || {
                     let existing_accounts = {
