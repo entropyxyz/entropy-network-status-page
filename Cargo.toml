@@ -10,7 +10,7 @@ license   ='AGPL-3.0-or-later'
 console_error_panic_hook = "0.1"
 console_log = "1"
 leptos = { version = "0.5", features = ["nightly", "csr"] }
-leptos_meta = { version = "0.5", features = ["nightly"] }
+leptos_meta = { version = "0.5", features = ["nightly", "csr"] }
 leptos_router = { version = "0.5", features = ["nightly", "csr"] }
 log = "0.4"
 simple_logger = "4"

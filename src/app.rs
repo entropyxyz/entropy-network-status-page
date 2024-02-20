@@ -6,18 +6,15 @@ use crate::{
     DetailsTable,
 };
 use leptos::*;
-// use leptos_meta::*;
+use leptos_meta::{provide_meta_context, Title};
 use leptos_router::*;
 
 #[component]
 pub fn App() -> impl IntoView {
-    // Provides context that manages stylesheets, titles, meta tags, etc.
-    // provide_meta_context();
-    // <Stylesheet id="leptos" href="/pkg/entropy-network-status-page.css"/>
-    //
-    // <Title text="Entropy Testnet Status Page"/>
+    provide_meta_context();
 
     view! {
+        <Title text=format!("Entropy {} Status Page", crate::ENTROPY_NETWORK_NAME)/>
         <Router fallback=|| {
             let mut outside_errors = Errors::default();
             outside_errors.insert_with_default_key(AppError::NotFound);
