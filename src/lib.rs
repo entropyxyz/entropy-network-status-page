@@ -12,13 +12,6 @@ use std::fmt;
 
 include!(concat!(env!("OUT_DIR"), "/endpoint.rs"));
 
-// pub use ENTROPY_NETWORK_ENDPOINT;
-// pub use ENTROPY_NETWORK_NAME;
-
-// pub async fn get_chain_endpoint() -> Result<String, ServerFnError> {
-//     Ok(std::env::var("ENTROPY_TESTNET_ENDPOINT").unwrap_or("ws://localhost:9944".to_string()))
-// }
-
 use crate::chain_api::{get_api, get_rpc, EntropyConfig};
 use subxt::{backend::legacy::LegacyRpcMethods, OnlineClient};
 pub async fn get_api_rpc(
