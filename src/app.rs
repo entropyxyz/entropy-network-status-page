@@ -138,6 +138,7 @@ fn HomePage() -> impl IntoView {
                                 "Times Used",
                                 "Size",
                                 "Configurable?",
+                                "Metadata",
                             ]
                         >
 
