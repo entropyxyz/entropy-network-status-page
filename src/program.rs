@@ -23,7 +23,7 @@ pub struct Program {
     pub ref_counter: u128,
     pub size: usize,
     pub configurable: bool,
-    pub name: Option<String>,
+    pub metadata: Option<ProgramMetadata>,
 }
 
 impl Program {
@@ -32,7 +32,6 @@ impl Program {
         program_info: ProgramInfo<AccountId32>,
         metadata: Option<Package>,
     ) -> Program {
-        let name = metadata.map(|m| m.name);
         Program {
             hash: hash.to_string(),
             deployer: program_info.deployer.to_string(),
@@ -41,7 +40,7 @@ impl Program {
             // TODO: If configuration interface is json we could display it. Waiting till
             // we have an example of a program with a configuration interface
             configurable: !program_info.configuration_interface.is_empty(),
-            name,
+            metadata: metadata.map(|m| ProgramMetadata::new(m)),
         }
     }
 }
@@ -72,7 +71,7 @@ pub fn Program(program: Program) -> impl IntoView {
             </td>
             <td class="p-4">
                 <p class="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
-                    {program.name.unwrap_or_default()}
+                    <ProgramMetadata metadata=program.metadata/>
                 </p>
             </td>
         </tr>
@@ -138,4 +137,118 @@ async fn get_program_metadata(hash: H256) -> Option<Package> {
 
     let package: Package = serde_json::from_str(&response_string).ok()?;
     Some(package)
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ProgramMetadata {
+    pub name: String,
+    pub version: String,
+    pub description: Option<String>,
+    pub license: Option<String>,
+    pub repository: Option<String>,
+    pub docker_image: Option<String>,
+}
+
+impl ProgramMetadata {
+    fn new(package: Package) -> ProgramMetadata {
+        ProgramMetadata {
+            name: package.name,
+            version: package.version.to_string(),
+            description: package.description,
+            license: package.license,
+            repository: package.repository,
+            docker_image: get_docker_image_name_from_metadata(&package.metadata),
+        }
+    }
+}
+
+#[component]
+pub fn ProgramMetadata(metadata: Option<ProgramMetadata>) -> impl IntoView {
+    match metadata {
+        Some(metadata) => view! {
+            <ul>
+                <ProgramMetadataItem name="Name">{metadata.name}</ProgramMetadataItem>
+                <ProgramMetadataItem name="Version">{metadata.version}</ProgramMetadataItem>
+                {if let Some(description) = metadata.description {
+                    view! {
+                        <span>
+                            <ProgramMetadataItem name="Description">
+                                {description}
+                            </ProgramMetadataItem>
+                        </span>
+                    }
+                } else {
+                    view! { <span></span> }
+                }}
+
+                {if let Some(license) = metadata.license {
+                    view! {
+                        <span>
+                            <ProgramMetadataItem name="License">{license}</ProgramMetadataItem>
+                        </span>
+                    }
+                } else {
+                    view! { <span></span> }
+                }}
+
+                {if let Some(repository) = metadata.repository {
+                    view! {
+                        <span>
+                            <ProgramMetadataItem name="Repository">
+                                <a
+                                    href=&repository
+                                    target="_blank"
+                                    class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+                                >
+                                    {repository}
+                                </a>
+                            </ProgramMetadataItem>
+                        </span>
+                    }
+                } else {
+                    view! { <span></span> }
+                }}
+
+                {if let Some(docker_image) = metadata.docker_image {
+                    view! {
+                        <span>
+                            <ProgramMetadataItem name="Docker image">
+                                {docker_image}
+                            </ProgramMetadataItem>
+                        </span>
+                    }
+                } else {
+                    view! { <span></span> }
+                }}
+
+            </ul>
+        },
+        None => view! { <ul></ul> },
+    }
+}
+
+#[component]
+pub fn ProgramMetadataItem(name: &'static str, children: Children) -> impl IntoView {
+    view! {
+        <li>
+            <strong>{format!("{}: ", name)}</strong>
+            {children()}
+        </li>
+    }
+}
+
+/// We expect there to be a docker image given in the Cargo.toml file like so:
+/// ```toml
+/// [package.metadata.entropy-program]
+/// docker-image = "peg997/build-entropy-programs:version0.1"
+/// ```
+fn get_docker_image_name_from_metadata(metadata: &serde_json::value::Value) -> Option<String> {
+    if let serde_json::value::Value::Object(m) = metadata {
+        if let Some(serde_json::value::Value::Object(p)) = m.get("entropy-program") {
+            if let Some(serde_json::value::Value::String(image_name)) = p.get("docker-image") {
+                return Some(image_name.clone());
+            }
+        }
+    }
+    None
 }
