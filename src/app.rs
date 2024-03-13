@@ -108,6 +108,7 @@ fn HomePage() -> impl IntoView {
                                 "Access Mode",
                                 "Program Modification Account",
                                 "Verifying Key",
+                                "Ethereum Address",
                                 "Programs",
                             ]
                         >
