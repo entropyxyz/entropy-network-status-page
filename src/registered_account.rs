@@ -1,13 +1,16 @@
 use crate::{DisplayValue, HexVec};
+use ethers_core::abi::ethabi::ethereum_types::H160;
 use leptos::*;
 use serde::{Deserialize, Serialize};
 use subxt::utils::AccountId32;
 
+pub use synedrion::{k256::ecdsa::VerifyingKey, KeyShare};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RegisteredAccount {
     pub account_id: AccountId32,
     pub key_visibility: (String, String),
     pub verifying_key: HexVec,
+    pub ethereum_address: Option<H160>,
     pub program_pointers: Vec<String>,
     pub program_modification_account: String,
 }
@@ -22,6 +25,10 @@ pub fn RegisteredAccount(account: RegisteredAccount) -> impl IntoView {
             <DisplayValue
                 value=account.verifying_key.to_string()
                 long_value=Some(format!("{:?}", account.verifying_key))
+            />
+            <DisplayValue
+                value=account.ethereum_address.map(|e| e.to_string()).unwrap_or_default()
+                long_value=account.ethereum_address.map(|e| format!("{:?}", e))
             />
             <td class="p-4">
                 <p class="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
@@ -48,6 +55,12 @@ cfg_if::cfg_if! {
             chain_api::entropy::runtime_types::pallet_relayer::pallet::RegisteredInfo,
         };
         use entropy_shared::KeyVisibility;
+        use ethers_core::utils::raw_public_key_to_address;
+        use synedrion::k256::{
+            // ecdsa::{RecoveryId, Signature as k256Signature, VerifyingKey},
+            elliptic_curve::sec1::EncodedPoint,
+            Secp256k1,
+        };
 
         impl RegisteredAccount {
             fn new(account_id: AccountId32, registered_info: RegisteredInfo) -> RegisteredAccount {
@@ -58,11 +71,20 @@ cfg_if::cfg_if! {
                         KeyVisibility::Permissioned => ("Permissioned".to_string(), "amber".to_string()),
                         KeyVisibility::Private(_) => ("Private".to_string(), "red".to_string()),
                     },
-                    verifying_key: HexVec(registered_info.verifying_key.0),
+                    verifying_key: HexVec(registered_info.verifying_key.0.clone()),
+                    ethereum_address: public_key_to_eth_address(registered_info.verifying_key.0).ok(),
                     program_pointers: registered_info.programs_data.0.into_iter().map(|program_instance| format!("{}", program_instance.program_pointer)).collect(),
                     program_modification_account: registered_info.program_modification_account.to_string(),
                 }
             }
+        }
+
+        /// Convert a compressed verifying key to an ethereum address
+        pub fn public_key_to_eth_address(compressed_public_key: Vec<u8>) -> anyhow::Result<H160> {
+            let encoded_point = EncodedPoint::<Secp256k1>::from_bytes(&compressed_public_key)?;
+            let verifying_key = VerifyingKey::from_encoded_point(&encoded_point)?;
+            let encoded = verifying_key.to_encoded_point(false);
+            Ok(raw_public_key_to_address(&encoded.as_bytes()[1..]))
         }
     }
 }
